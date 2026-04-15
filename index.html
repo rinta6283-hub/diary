@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Diary-ku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream:     #f7f2e9;
+      --cream-mid: #ede5d3;
+      --cream-dark:#d9cdb8;
+      --ink:       #1a1612;
+      --ink-soft:  #4a4035;
+      --ink-muted: #9c9080;
+      --rust:      #8b3a1e;
+      --rust-light:#f0e6df;
+      --gold:      #b8923a;
+      --gold-light:#faf3e6;
+      --white:     #fffdf9;
+      --shadow:    rgba(26,22,18,0.08);
+      --shadow-md: rgba(26,22,18,0.14);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(184,146,58,0.12) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8923a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      min-height: 100vh;
+      color: var(--ink);
+      padding: 0 0 6rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Top Banner ── */
+    .top-banner {
+      background: var(--ink);
+      color: var(--cream-mid);
+      text-align: center;
+      padding: 12px 1rem;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    /* ── Header ── */
+    .diary-header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+    }
+
+    .header-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .header-ornament::before,
+    .header-ornament::after {
+      content: '';
+      height: 1px;
+      width: 60px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+
+    .header-ornament::after {
+      background: linear-gradient(to left, transparent, var(--gold));
+    }
+
+    .header-ornament span { font-size: 16px; color: var(--gold); }
+
+    .diary-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 10vw, 48px);
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .diary-title em { font-style: italic; color: var(--rust); }
+
+    .diary-subtitle {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+      font-weight: 300;
+    }
+
+    /* ── Main ── */
+    .main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ── Tabs ── */
+    .tab-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 1.5px solid var(--cream-dark);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px 16px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      color: var(--ink-muted);
+      cursor: pointer;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      position: relative;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .tab::after {
+      content: '';
+      position: absolute;
+      bottom: -1.5px;
+      left: 0; right: 0;
+      height: 2px;
+      background: var(--rust);
+      transform: scaleX(0);
+      transition: transform 0.25s ease;
+    }
+
+    .tab.active { color: var(--rust); font-weight: 500; }
+    .tab.active::after { transform: scaleX(1); }
+
+    .count-chip {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--rust);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 500;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      padding: 0 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0;
+    }
+
+    .count-chip.visible { display: inline-flex; }
+
+    /* ── Pages ── */
+    .page-write, .page-entries { display: none; }
+    .page-write.show, .page-entries.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Write Card ── */
+    .write-card {
+      background: var(--white);
+      border: 1px solid var(--cream-dark);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px var(--shadow), 0 12px 40px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .write-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 5px; height: 100%;
+      background: linear-gradient(180deg, var(--rust), var(--gold));
+    }
+
+    /* margin line — hidden on very small screens */
+    .write-card::before {
+      content: '';
+      position: absolute;
+      left: 52px;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(184,146,58,0.25);
+      z-index: 0;
+    }
+
+    .write-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem 0 1.25rem;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .write-date {
+      font-size: 11px;
+      color: var(--ink-muted);
+      letter-spacing: 0.3px;
+      font-weight: 300;
+      padding-left: 44px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mood-row {
+      display: flex;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .mood-btn {
+      font-size: 22px;
+      background: none;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 4px 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-width: 40px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mood-btn:active { background: var(--cream); transform: scale(1.15); }
+    .mood-btn.selected { border-color: var(--gold); background: var(--gold-light); }
+
+    .title-input {
+      width: 100%;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 5vw, 22px);
+      font-weight: 400;
+      border: none;
+      background: transparent;
+      padding: 1rem 1.25rem 0.75rem calc(1.25rem + 44px);
+      color: var(--ink);
+      outline: none;
+      border-bottom: 1px dashed var(--cream-dark);
+      position: relative;
+      z-index: 1;
+    }
+
+    .title-input::placeholder { color: var(--cream-dark); font-style: italic; }
+
+    .body-input {
+      width: 100%;
+      min-height: 240px;
+      font-family: 'Lora', serif;
+      font-size: clamp(14px, 4vw, 15px);
+      line-height: 2;
+      border: none;
+      background: transparent;
+      resize: none;
+      color: var(--ink-soft);
+      outline: none;
+      padding: 1rem 1.25rem 1.5rem calc(1.25rem + 44px);
+      position: relative;
+      z-index: 1;
+      background-image: repeating-linear-gradient(
+        transparent, transparent 31px,
+        rgba(184,146,58,0.12) 31px, rgba(184,146,58,0.12) 32px
+      );
+      background-position: 0 12px;
+    }
+
+    .body-input::placeholder { color: var(--cream-dark); font-style: italic; }
+
+    .write-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.875rem 1.25rem;
+      border-top: 1px solid var(--cream-mid);
+      background: var(--cream);
+      gap: 8px;
+    }
+
+    .char-count { font-size: 11px; color: var(--ink-muted); flex-shrink: 0; }
+
+    .write-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn-save {
+      background: var(--ink);
+      color: var(--cream);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: background 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+
+    .btn-save:active { background: var(--rust); transform: scale(0.98); }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--ink-muted);
+      border: 1px solid var(--cream-dark);
+      padding: 12px 16px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+
+    .btn-clear:active { border-color: var(--ink-soft); color: var(--ink); }
+
+    /* ── Entry Cards ── */
+    .entries-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-dark);
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .entry-card {
+      background: var(--white);
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0 1rem;
+      align-items: start;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 64px;
+    }
+
+    .entry-card:active { background: var(--gold-light); }
+
+    .entry-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--cream-dark);
+      line-height: 1;
+      padding-top: 2px;
+      min-width: 28px;
+      text-align: right;
+      font-style: italic;
+    }
+
+    .entry-content { min-width: 0; }
+
+    .entry-preview-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .entry-preview-body {
+      font-size: 12px;
+      color: var(--ink-muted);
+      font-weight: 300;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-style: italic;
+    }
+
+    .entry-right { text-align: right; flex-shrink: 0; }
+
+    .entry-date {
+      font-size: 11px;
+      color: var(--ink-muted);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .entry-mood { font-size: 18px; display: block; margin-top: 3px; }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--ink-muted);
+    }
+
+    .empty-icon { font-size: 44px; display: block; margin-bottom: 1rem; opacity: 0.35; }
+
+    .empty-state p {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+
+    .empty-state small { font-size: 12px; font-weight: 300; }
+
+    /* ── Modal — fullscreen on mobile ── */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,22,18,0.55);
+      z-index: 50;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+
+    .modal-bg.open { display: flex; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--white);
+      border-radius: 12px 12px 0 0;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 -8px 40px rgba(26,22,18,0.2);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    /* drag handle */
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--cream-dark);
+      border-radius: 2px;
+      margin: 12px auto 4px;
+    }
+
+    .modal-accent {
+      height: 4px;
+      background: linear-gradient(to right, var(--rust), var(--gold));
+      border-radius: 0 0 0 0;
+    }
+
+    .modal-inner { padding: 1.5rem 1.25rem 2rem; }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+      gap: 0.75rem;
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 5vw, 22px);
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .modal-meta {
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-top: 5px;
+      letter-spacing: 0.3px;
+    }
+
+    .modal-close {
+      background: var(--cream);
+      border: 1px solid var(--cream-dark);
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--ink-soft);
+      flex-shrink: 0;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .modal-close:active { background: var(--rust); border-color: var(--rust); color: #fff; }
+
+    .modal-divider { height: 1px; background: var(--cream-mid); margin-bottom: 1.25rem; }
+
+    .modal-body {
+      font-family: 'Lora', serif;
+      font-size: clamp(14px, 4vw, 15px);
+      line-height: 1.95;
+      color: var(--ink-soft);
+      white-space: pre-wrap;
+    }
+
+    .modal-footer {
+      margin-top: 1.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--cream-mid);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: var(--rust);
+      border: 1px solid var(--rust);
+      padding: 12px 20px;
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+
+    .btn-delete:active { background: var(--rust); color: #fff; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--ink);
+      color: var(--cream);
+      padding: 12px 24px;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 99;
+      white-space: nowrap;
+      border-left: 3px solid var(--gold);
+      max-width: calc(100vw - 2rem);
+      text-align: center;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 400px) {
+      .write-card::before { display: none; }
+      .title-input,
+      .body-input { padding-left: 1rem; }
+      .write-date { padding-left: 0; }
+      .entry-num { display: none; }
+      .entry-card { grid-template-columns: 1fr auto; }
+      .mood-btn { font-size: 20px; min-width: 36px; min-height: 36px; padding: 3px 4px; }
+    }
+
+    /* ── Desktop upgrade (modal centered) ── */
+    @media (min-width: 600px) {
+      .modal-bg { align-items: center; }
+      .modal {
+        border-radius: 4px;
+        max-width: 580px;
+        max-height: 88vh;
+      }
+      .modal-handle { display: none; }
+      .entry-card:hover { background: var(--gold-light); }
+      .mood-btn:hover { background: var(--cream); transform: scale(1.15); }
+      .btn-save:hover { background: var(--rust); }
+      .btn-clear:hover { border-color: var(--ink-soft); color: var(--ink); }
+      .btn-delete:hover { background: var(--rust); color: #fff; }
+      .modal-close:hover { background: var(--rust); border-color: var(--rust); color: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-banner" id="today-label">memuat tanggal...</div>
+
+<div class="diary-header">
+  <div class="header-ornament"><span>✦</span></div>
+  <h1 class="diary-title">Diary<em>-ku</em></h1>
+  <p class="diary-subtitle">Ruang untuk jujur pada diri sendiri</p>
+</div>
+
+<div class="main">
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('write')">Tulis</button>
+    <button class="tab" onclick="showTab('entries')">
+      Entri <span class="count-chip" id="count-chip"></span>
+    </button>
+  </div>
+
+  <!-- Halaman Tulis -->
+  <div class="page-write show" id="page-write">
+    <div class="write-card">
+      <div class="write-top">
+        <div class="write-date" id="write-date-label">—</div>
+        <div class="mood-row">
+          <button class="mood-btn" onclick="selectMood(this,'😊')">😊</button>
+          <button class="mood-btn" onclick="selectMood(this,'😢')">😢</button>
+          <button class="mood-btn" onclick="selectMood(this,'😍')">😍</button>
+          <button class="mood-btn" onclick="selectMood(this,'😤')">😤</button>
+          <button class="mood-btn" onclick="selectMood(this,'😌')">😌</button>
+          <button class="mood-btn" onclick="selectMood(this,'🥳')">🥳</button>
+        </div>
+      </div>
+      <input
+        class="title-input"
+        id="entry-title"
+        type="text"
+        placeholder="Judul hari ini…"
+        maxlength="80"
+        autocomplete="off"
+        autocorrect="on"
+      />
+      <textarea
+        class="body-input"
+        id="entry-body"
+        placeholder="Mulailah dengan apa yang kamu rasakan hari ini…"
+        oninput="updateCharCount()"
+        autocorrect="on"
+        autocapitalize="sentences"
+      ></textarea>
+      <div class="write-footer">
+        <span class="char-count" id="char-count">0 karakter</span>
+        <div class="write-actions">
+          <button class="btn-clear" onclick="clearForm()">Bersihkan</button>
+          <button class="btn-save" onclick="saveEntry()">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Halaman Entri -->
+  <div class="page-entries" id="page-entries">
+    <div id="entries-container"></div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-accent"></div>
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modal-title"></div>
+          <div class="modal-meta" id="modal-meta"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-delete" onclick="deleteEntry()">Hapus Entri</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'diary_entries_v2';
+  let entries = [];
+  let selectedMood = '';
+  let viewingId = null;
+
+  function loadEntries() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      entries = raw ? JSON.parse(raw) : [];
+    } catch { entries = []; }
+    updateChip();
+  }
+
+  function saveEntries() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function formatDate(ts) {
+    return new Date(ts).toLocaleDateString('id-ID', {
+      weekday:'long', day:'numeric', month:'long', year:'numeric'
+    });
+  }
+
+  function formatTime(ts) {
+    return new Date(ts).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function setDateLabels() {
+    const now = new Date();
+    const label = now.toLocaleDateString('id-ID', {
+      weekday:'long', day:'numeric', month:'long', year:'numeric'
+    });
+    document.getElementById('today-label').textContent = label.toUpperCase();
+    document.getElementById('write-date-label').textContent =
+      label + ' · ' + now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function selectMood(btn, emoji) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMood = emoji;
+  }
+
+  function updateCharCount() {
+    const len = document.getElementById('entry-body').value.length;
+    document.getElementById('char-count').textContent = len.toLocaleString('id-ID') + ' karakter';
+  }
+
+  function clearForm() {
+    document.getElementById('entry-title').value = '';
+    document.getElementById('entry-body').value = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    selectedMood = '';
+    updateCharCount();
+  }
+
+  function saveEntry() {
+    const title = document.getElementById('entry-title').value.trim();
+    const body  = document.getElementById('entry-body').value.trim();
+    if (!title && !body) { showToast('Tulis sesuatu dulu ya ✏️'); return; }
+    entries.unshift({
+      id: Date.now(), ts: Date.now(),
+      title: title || 'Tanpa judul',
+      body, mood: selectedMood
+    });
+    saveEntries();
+    updateChip();
+    clearForm();
+    showToast('Tersimpan dengan aman 🔒');
+  }
+
+  function updateChip() {
+    const chip = document.getElementById('count-chip');
+    if (entries.length > 0) {
+      chip.textContent = entries.length;
+      chip.classList.add('visible');
+    } else {
+      chip.classList.remove('visible');
+    }
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderEntries() {
+    const el = document.getElementById('entries-container');
+    if (entries.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">📖</span>
+          <p>Belum ada cerita di sini</p>
+          <small>Mulai tuliskan hari pertamamu</small>
+        </div>`;
+      return;
+    }
+    el.innerHTML = `<div class="entries-grid">` +
+      entries.map((e, i) => `
+        <div class="entry-card" onclick="openEntry(${e.id})">
+          <div class="entry-num">${String(entries.length - i).padStart(2,'0')}</div>
+          <div class="entry-content">
+            <div class="entry-preview-title">${escHtml(e.title)}</div>
+            <div class="entry-preview-body">${escHtml(e.body.replace(/\n/g,' '))}</div>
+          </div>
+          <div class="entry-right">
+            <div class="entry-date">${new Date(e.ts).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</div>
+            <span class="entry-mood">${e.mood || ''}</span>
+          </div>
+        </div>
+      `).join('') + `</div>`;
+  }
+
+  function showTab(tab) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs[0].classList.toggle('active', tab==='write');
+    tabs[1].classList.toggle('active', tab==='entries');
+    document.getElementById('page-write').classList.toggle('show', tab==='write');
+    document.getElementById('page-entries').classList.toggle('show', tab==='entries');
+    if (tab === 'entries') renderEntries();
+  }
+
+  function openEntry(id) {
+    const e = entries.find(x => x.id === id);
+    if (!e) return;
+    viewingId = id;
+    document.getElementById('modal-title').textContent = (e.mood ? e.mood + '  ' : '') + e.title;
+    document.getElementById('modal-meta').textContent = formatDate(e.ts) + ' · ' + formatTime(e.ts);
+    document.getElementById('modal-body').textContent = e.body;
+    document.getElementById('modal-bg').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-bg').classList.remove('open');
+    document.body.style.overflow = '';
+    viewingId = null;
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal-bg')) closeModal();
+  }
+
+  function deleteEntry() {
+    if (!viewingId) return;
+    if (!confirm('Hapus entri ini secara permanen?')) return;
+    entries = entries.filter(x => x.id !== viewingId);
+    saveEntries();
+    updateChip();
+    renderEntries();
+    closeModal();
+    showToast('Entri dihapus');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  /* Swipe-to-close modal on mobile */
+  let startY = 0;
+  const modalBox = document.getElementById('modal-box');
+  modalBox.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  modalBox.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy > 80) closeModal();
+  }, { passive: true });
+
+  setDateLabels();
+  loadEntries();
+</script>
+</body>
+</html>
